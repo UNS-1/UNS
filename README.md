@@ -1,4 +1,4 @@
-# LUMI — A Little World of Care | لومي — عالمٌ صغير من الرعاية
+# UNS — A Little World of Care | أُنس — عالمٌ صغير من الرعاية
 
 A bilingual (Arabic/English) **prototype** of a child-centered digital companion for children aged 5–12 living with chronic or serious illnesses, with a separate nursing dashboard.
 نموذج أولي ثنائي اللغة (عربي/إنجليزي) لرفيق رقمي للأطفال (5–12 سنة) مع لوحة تمريض منفصلة.
