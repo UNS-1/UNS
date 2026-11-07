@@ -1,14 +1,14 @@
--- LUMI backend, part 3: FICTIONAL demonstration data (never run against a production project).
+-- UNS backend, part 3: FICTIONAL demonstration data (never run against a production project).
 -- First create four users in Supabase Auth (Dashboard > Authentication > Users) with these emails:
---   demo.caregiver@lumi.example, demo.nurse@lumi.example, demo.child@lumi.example, demo.admin@lumi.example
+--   demo.caregiver@uns.example, demo.nurse@uns.example, demo.child@uns.example, demo.admin@uns.example
 -- Then run this file in the SQL editor (it runs as the owner, so it bypasses RLS on purpose).
 do $$
 declare cg uuid; nu uuid; kid uuid; ad uuid; ch uuid;
 begin
-  select id into cg  from auth.users where email = 'demo.caregiver@lumi.example';
-  select id into nu  from auth.users where email = 'demo.nurse@lumi.example';
-  select id into kid from auth.users where email = 'demo.child@lumi.example';
-  select id into ad  from auth.users where email = 'demo.admin@lumi.example';
+  select id into cg  from auth.users where email = 'demo.caregiver@uns.example';
+  select id into nu  from auth.users where email = 'demo.nurse@uns.example';
+  select id into kid from auth.users where email = 'demo.child@uns.example';
+  select id into ad  from auth.users where email = 'demo.admin@uns.example';
   if cg is null or nu is null or kid is null or ad is null then
     raise exception 'Create the four demo auth users first (see header).'; end if;
 
@@ -18,7 +18,7 @@ begin
   update profiles set role='admin',     display_name='Demo Admin'     where id = ad;
 
   insert into child_profiles(user_id, nickname, age_group, avatar, theme, language, is_demo, created_by)
-  values (kid, 'Lily', '8-10', 'lumi', 'sky', 'en', true, cg) returning id into ch;
+  values (kid, 'Lily', '8-10', 'uns', 'sky', 'en', true, cg) returning id into ch;
   insert into caregiver_relationships(child_id, caregiver_id, relationship, status, verified_by, verified_at)
   values (ch, cg, 'parent', 'active', ad, now());
   insert into nurse_assignments(child_id, nurse_id, assigned_by) values (ch, nu, ad);

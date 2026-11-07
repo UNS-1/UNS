@@ -1,4 +1,4 @@
--- LUMI backend, part 2: privileges, row-level security, storage
+-- UNS backend, part 2: privileges, row-level security, storage
 -- Principle: deny by default. Only the 'authenticated' role gets any table access; 'anon' gets none.
 -- Administrators manage content, roles, logs and settings. They have NO policy on child health data.
 
@@ -6,7 +6,7 @@ revoke all on all tables in schema public from anon, authenticated;
 revoke execute on all functions in schema public from public, anon;
 grant execute on all functions in schema public to authenticated;
 -- trigger functions are never called directly
-revoke execute on function handle_new_user(), require_collection_consent(), block_mutation(), emit_signals(), audit_change() from authenticated;
+revoke execute on function set_nurse_code(), handle_new_user(), require_collection_consent(), block_mutation(), emit_signals(), audit_change() from authenticated;
 
 alter table profiles enable row level security;
 alter table child_profiles enable row level security;
@@ -26,6 +26,8 @@ alter table notifications enable row level security;
 alter table educational_content enable row level security;
 alter table activities enable row level security;
 alter table audit_logs enable row level security;
+alter table family_codes enable row level security;
+alter table code_attempts enable row level security;   -- no policies and no grants: only the security-definer functions touch it
 
 -- profiles: read own; role/is_active can only change through admin_set_role()
 grant select on profiles to authenticated;
@@ -42,7 +44,11 @@ create policy c_upd on child_profiles for update to authenticated
   using (is_child_self(id) or is_caregiver_of(id)) with check (is_child_self(id) or is_caregiver_of(id));
 
 grant select on caregiver_relationships to authenticated;
-create policy r_sel on caregiver_relationships for select to authenticated using (caregiver_id = auth.uid() or is_admin());
+create policy r_sel on caregiver_relationships for select to authenticated using (caregiver_id = auth.uid() or is_admin() or is_nurse_of(child_id));
+
+-- Family codes: the nurse who issued them can see status (never the code or its hash). Creation only via nurse_create_family_code().
+grant select(id, child_id, nurse_id, expires_at, used_by, used_at, created_at) on family_codes to authenticated;
+create policy fcodes_sel on family_codes for select to authenticated using (nurse_id = auth.uid() and is_nurse_of(child_id));
 
 grant select, insert, update on nurse_assignments to authenticated;
 create policy na_sel on nurse_assignments for select to authenticated using (nurse_id = auth.uid() or is_admin());

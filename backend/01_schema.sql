@@ -1,4 +1,4 @@
--- LUMI backend, part 1: schema, helper functions, triggers (PostgreSQL / Supabase)
+-- UNS backend, part 1: schema, helper functions, triggers (PostgreSQL / Supabase)
 -- Synthetic data only. Not clinically approved, not legally reviewed.
 -- Run order: 01_schema.sql -> 02_rls.sql -> (optional) 03_seed_demo.sql
 
@@ -17,6 +17,7 @@ create table profiles(
   display_name text not null check (char_length(display_name) between 1 and 60),
   preferred_language lang_code not null default 'ar',
   is_active boolean not null default true,
+  nurse_code text unique,                                -- private code per nurse, generated when role becomes 'nurse'
   created_at timestamptz not null default now());
 
 -- Minimal child data: nickname + age band only. No legal name, no birth date.
@@ -50,6 +51,21 @@ create table nurse_assignments(
   assigned_by uuid references profiles(id),
   starts_at timestamptz not null default now(), ends_at timestamptz,
   unique(child_id, nurse_id));
+
+-- Family codes: a nurse gives each child's family a single-use code. Only a hash is stored; the code is shown once.
+create table family_codes(
+  id uuid primary key default gen_random_uuid(),
+  child_id uuid not null references child_profiles(id) on delete cascade,
+  nurse_id uuid not null references profiles(id) on delete cascade,
+  code_hash text not null unique,
+  expires_at timestamptz not null default now() + interval '14 days',
+  used_by uuid references profiles(id), used_at timestamptz,
+  created_at timestamptz not null default now());
+
+create table code_attempts(       -- failed code entries, used to rate-limit guessing (5 per 15 minutes)
+  id bigint generated always as identity primary key,
+  user_id uuid not null references profiles(id) on delete cascade,
+  at timestamptz not null default now());
 
 -- Append-only. The latest row per (child, type) is the current state; revoke = new row with granted=false.
 create table consent_records(
@@ -176,6 +192,26 @@ create index on notifications(recipient_id, created_at desc);
 create index on nursing_notes(child_id, created_at desc);
 create index on audit_logs(child_id, at desc);
 
+-- ---------- codes ----------
+create function gen_code(n int) returns text language sql volatile as
+$$ select upper(substr(translate(replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''), '01', ''), 1, n)) $$;
+create function hash_code(c text) returns text language sql immutable as
+$$ select encode(sha256(convert_to(upper(regexp_replace(c, '[^A-Za-z0-9]', '', 'g')), 'UTF8')), 'hex') $$;
+
+create function set_nurse_code() returns trigger language plpgsql set search_path=public as $$
+begin
+  if new.role = 'nurse' then
+    if new.nurse_code is null then
+      loop
+        new.nurse_code := 'N' || gen_code(5);
+        exit when not exists(select 1 from profiles where nurse_code = new.nurse_code);
+      end loop;
+    end if;
+  else new.nurse_code := null; end if;
+  return new;
+end $$;
+create trigger t_nurse_code before insert or update of role on profiles for each row execute function set_nurse_code();
+
 -- ---------- helper functions (security definer so RLS policies can call them without recursion) ----------
 create function my_role() returns user_role language sql stable security definer set search_path=public as
 $$ select role from profiles where id = auth.uid() and is_active $$;
@@ -216,15 +252,75 @@ begin
 end $$;
 
 -- ---------- controlled operations ----------
-create function create_child_profile(nick text, band text, rel text) returns uuid language plpgsql security definer set search_path=public as $$
+-- The NURSE registers the child (so the child is linked to that nurse from the start).
+create function nurse_create_child(nick text, band text) returns uuid language plpgsql security definer set search_path=public as $$
 declare cid uuid;
 begin
-  if my_role() <> 'caregiver' then raise exception 'caregivers only'; end if;
+  if my_role() <> 'nurse' then raise exception 'nurses only'; end if;
   insert into child_profiles(nickname, age_group, created_by) values (nick, band, auth.uid()) returning id into cid;
-  insert into caregiver_relationships(child_id, caregiver_id, relationship) values (cid, auth.uid(), rel);  -- stays 'pending' until verified
-  insert into audit_logs(actor_id, actor_role, action, child_id, target_table, target_id) values (auth.uid(), 'caregiver', 'CREATE_CHILD', cid, 'child_profiles', cid);
+  insert into nurse_assignments(child_id, nurse_id, assigned_by) values (cid, auth.uid(), auth.uid());
+  insert into audit_logs(actor_id, actor_role, action, child_id, target_table, target_id) values (auth.uid(), 'nurse', 'CREATE_CHILD', cid, 'child_profiles', cid);
   return cid;
 end $$;
+
+-- Returns the readable code ONCE (format XXXXX-XXXXX). Only its hash is stored.
+create function nurse_create_family_code(c uuid) returns text language plpgsql security definer set search_path=public as $$
+declare raw text := gen_code(10);
+begin
+  if not is_nurse_of(c) then raise exception 'not authorized'; end if;
+  insert into family_codes(child_id, nurse_id, code_hash) values (c, auth.uid(), hash_code(raw));
+  insert into audit_logs(actor_id, actor_role, action, child_id, target_table) values (auth.uid(), 'nurse', 'CREATE_FAMILY_CODE', c, 'family_codes');
+  return substr(raw, 1, 5) || '-' || substr(raw, 6, 5);
+end $$;
+
+-- A caregiver enters the code. Returns the child id, or NULL for a wrong/used/expired code (failed tries are counted).
+create function redeem_family_code(p text) returns uuid language plpgsql security definer set search_path=public as $$
+declare fc family_codes;
+begin
+  if my_role() <> 'caregiver' then raise exception 'caregivers only'; end if;
+  if (select count(*) from code_attempts where user_id = auth.uid() and at > now() - interval '15 minutes') >= 5 then
+    raise exception 'too many attempts, try again later'; end if;
+  select * into fc from family_codes f
+   where f.code_hash = hash_code(p) and f.used_at is null and f.expires_at > now()
+     and exists(select 1 from nurse_assignments n where n.child_id = f.child_id and n.nurse_id = f.nurse_id and n.active)
+   for update;
+  if not found then insert into code_attempts(user_id) values (auth.uid()); return null; end if;
+  update family_codes set used_by = auth.uid(), used_at = now() where id = fc.id;
+  insert into caregiver_relationships(child_id, caregiver_id, relationship, status, verified_by, verified_at)
+  values (fc.child_id, auth.uid(), 'parent', 'active', fc.nurse_id, now())
+  on conflict (child_id, caregiver_id) do update set status = 'active', verified_by = excluded.verified_by, verified_at = excluded.verified_at;
+  delete from code_attempts where user_id = auth.uid();
+  insert into audit_logs(actor_id, actor_role, action, child_id, target_table, target_id) values (auth.uid(), 'caregiver', 'REDEEM_FAMILY_CODE', fc.child_id, 'family_codes', fc.id);
+  return fc.child_id;
+end $$;
+
+create function nurse_revoke_caregiver(rel uuid) returns void language plpgsql security definer set search_path=public as $$
+declare cid uuid;
+begin
+  select child_id into cid from caregiver_relationships where id = rel;
+  if cid is null or not is_nurse_of(cid) then raise exception 'not authorized'; end if;
+  update caregiver_relationships set status = 'revoked' where id = rel;
+end $$;
+
+-- Second factor for the nursing dashboard (on top of normal sign-in). Rate-limited like family codes.
+create function nurse_verify_code(p text) returns boolean language plpgsql security definer set search_path=public as $$
+begin
+  if my_role() <> 'nurse' then return false; end if;
+  if (select count(*) from code_attempts where user_id = auth.uid() and at > now() - interval '15 minutes') >= 5 then
+    raise exception 'too many attempts, try again later'; end if;
+  if exists(select 1 from profiles where id = auth.uid() and nurse_code = upper(trim(p))) then
+    delete from code_attempts where user_id = auth.uid(); return true; end if;
+  insert into code_attempts(user_id) values (auth.uid());
+  return false;
+end $$;
+
+create function my_nurse_code() returns text language sql stable security definer set search_path=public as
+$$ select nurse_code from profiles where id = auth.uid() and role = 'nurse' $$;
+
+-- A caregiver or child can see the display name of the nurse linked to the child.
+create function child_nurses(c uuid) returns table(display_name text) language sql stable security definer set search_path=public as
+$$ select p.display_name from nurse_assignments n join profiles p on p.id = n.nurse_id
+   where n.child_id = c and n.active and (is_caregiver_of(c) or is_child_self(c)) $$;
 
 create function admin_verify_caregiver(rel uuid) returns void language plpgsql security definer set search_path=public as $$
 declare cid uuid;
@@ -258,7 +354,7 @@ $$ select c.id, c.nickname, c.is_demo from child_profiles c where is_admin() $$;
 create function purge_child_data(cid uuid) returns void language plpgsql security definer set search_path=public as $$
 begin
   if not is_admin() then raise exception 'admin only'; end if;
-  perform set_config('lumi.allow_purge', 'on', true);
+  perform set_config('uns.allow_purge', 'on', true);
   delete from child_profiles where id = cid;
   insert into audit_logs(actor_id, actor_role, action, child_id) values (auth.uid(), 'admin', 'PURGE_CHILD', cid);
 end $$;
@@ -291,7 +387,7 @@ create trigger t_consent before insert on child_preferences for each row execute
 -- Clinical and audit records cannot be edited or deleted (except through purge_child_data).
 create function block_mutation() returns trigger language plpgsql as $$
 begin
-  if TG_OP = 'DELETE' and current_setting('lumi.allow_purge', true) = 'on' and TG_TABLE_NAME <> 'audit_logs' then return old; end if;
+  if TG_OP = 'DELETE' and current_setting('uns.allow_purge', true) = 'on' and TG_TABLE_NAME <> 'audit_logs' then return old; end if;
   raise exception '% is append-only', TG_TABLE_NAME;
 end $$;
 create trigger t_immutable before update or delete on emotional_checkins for each row execute function block_mutation();
