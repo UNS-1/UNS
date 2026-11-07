@@ -1,23 +1,25 @@
-# UNS — A Little World of Care | أُنس — عالمٌ صغير من الرعاية
+# UNS (أُنس) — A Little World of Care | عالمٌ صغير من الرعاية
 
-A bilingual (Arabic/English) **prototype** of a child-centered digital companion for children aged 5–12 living with chronic or serious illnesses, with a separate nursing dashboard.
-نموذج أولي ثنائي اللغة (عربي/إنجليزي) لرفيق رقمي للأطفال (5–12 سنة) مع لوحة تمريض منفصلة.
+A bilingual (Arabic/English) **prototype** of a child-centered digital companion for children aged 5–12 living with chronic or serious illnesses, with a nursing dashboard and a caregiver area protected by nurse-issued family codes.
+نموذج أولي ثنائي اللغة (عربي/إنجليزي) لرفيق رقمي للأطفال (5–12 سنة) مع لوحة تمريض ومنطقة أهل تُفتح بكود يعطيه الممرض.
 
 ## ⚠️ Important / تنبيه مهم
-- Educational and supportive **prototype only**. It is not a diagnostic tool, treatment system or emergency service, and it does not replace healthcare professionals.
-- **Not clinically approved and not legally reviewed.** All data shown is **fictional demonstration data**. Do not enter real patient information.
-- Data lives in browser memory only and is lost on reload. There is no real login yet.
-- نموذج تعليمي وداعم فقط، وليس أداة تشخيص أو علاج أو طوارئ. غير معتمد سريريًا ولا قانونيًا. كل البيانات وهمية.
+- Educational and supportive **prototype only**. Not a diagnostic tool, treatment system or emergency service; it does not replace healthcare professionals.
+- **Not clinically approved and not legally reviewed.** All data is **fictional demonstration data**. Do not enter real patient information.
+- The website keeps data in browser memory only (lost on reload). Codes in the website are a **demonstration**: real code security (hashing, expiry, rate limits) is implemented in `backend/` and still has to be connected.
+- نموذج تعليمي وداعم فقط، غير معتمد سريريًا ولا قانونيًا، وكل البيانات وهمية.
 
-## Live site
-After enabling GitHub Pages: `https://<your-username>.github.io/<repository-name>/`
+## Try the demo flow
+1. Open **Nurse dashboard** (button *For Parents & Nurses*) and enter the demo nurse code shown on screen.
+2. Open the **Family code** tab and create a code.
+3. Open the **Caregiver area** and enter that code.
+
+## Real accounts (connected to Supabase)
+`app.html` is the connected app: real sign-up/sign-in, nurse code, nurse registers children and creates single-use family codes, caregivers link with a code and manage consents. `config.js` holds the public URL and publishable key only (never the secret/service_role key). `supabase.js` is a pinned local copy of supabase-js.
 
 ## Contents
 - `index.html` — the whole prototype (single file, no build step).
-- `backend/` — Supabase/PostgreSQL schema, row-level security policies, fictional seed data and technical documentation (not connected to the site yet).
-
-## Not implemented yet
-Real authentication and database connection, caregiver verification flow, admin content manager, audio narration/recording, relaxation corner (needs clinical review), licensed FPS-R artwork, independent clinical/legal/security review.
+- `backend/` — PostgreSQL/Supabase schema, row-level security, nurse codes and family codes, fictional seed data, technical documentation (not connected to the site yet).
 
 ## Security rule
 Never commit passwords, API secrets or the Supabase `service_role` key to this repository.

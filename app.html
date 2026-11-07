@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UNS — Accounts | أُنس — الحسابات</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600&family=Nunito:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF8EF;--tx:#66546F;--lav:#DCCEF4;--pink:#F4DCE8;--mint:#DCEFE5;--peach:#F8E1D4;--card:#fff;--ac:#7d62a8}
+@media (prefers-color-scheme:dark){:root{--bg:#2a2431;--tx:#efe6f5;--lav:#4a3d63;--pink:#5a3d51;--mint:#35503f;--peach:#5a4538;--card:#382f42;--ac:#c4a9ef}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:18px/1.6 Nunito,Tajawal,sans-serif;padding-top:env(safe-area-inset-top,0)}
+[dir=rtl] *{font-family:Tajawal,Nunito,sans-serif}h1,h2,h3{font-family:'Baloo 2',Tajawal,sans-serif;margin:.3em 0}
+header{display:flex;gap:8px;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--lav);flex-wrap:wrap}
+main{max-width:760px;margin:0 auto;padding:16px}.card{background:var(--card);border-radius:20px;padding:16px;margin:10px 0;box-shadow:0 3px 10px #0001}
+button{font:inherit;color:var(--tx);background:var(--card);border:2px solid var(--lav);border-radius:16px;padding:10px 16px;min-height:48px;cursor:pointer}
+button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}button.on{background:var(--lav)}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+input,select{width:100%;font:inherit;padding:10px;border-radius:14px;border:2px solid var(--lav);background:var(--card);color:var(--tx);margin:6px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.ok{background:var(--mint)}.warn{background:var(--peach)}.err{background:var(--pink)}
+.code{font:700 30px/1.2 monospace;letter-spacing:3px;direction:ltr;text-align:center;padding:14px;background:var(--lav);border-radius:14px;margin:8px 0}
+small{opacity:.85}footer{text-align:center;font-size:14px;padding:16px;opacity:.85}
+</style></head><body>
+<header><b style="font-family:'Baloo 2'">✨ UNS</b><span><a href="index.html" style="color:inherit">Demo</a> · <button onclick="L()" id="lg"></button> <button id="so" onclick="out()" hidden></button></span></header>
+<main id="app"></main><footer id="ft"></footer>
+<script src="supabase.js"></script><script src="config.js"></script>
+<script>
+const C=window.UNS_CONFIG,sb=supabase.createClient(C.url,C.key);
+const S={lang:'ar',user:null,prof:null,mode:'in',msg:'',err:'',kids:[],cons:{},codes:{},rels:{},nok:false,nc:null};
+const CT=['data_collection','share_feelings_summary','share_health_summary','media_photos'];
+const T={ar:{lang:'English',so:'خروج',foot:'نموذج أولي تعليمي وداعم، وليس أداة تشخيص أو علاج أو طوارئ، وغير معتمد سريريًا ولا قانونيًا. لا تُدخل بيانات مرضى حقيقيين.',
+ signin:'تسجيل الدخول',signup:'إنشاء حساب ولي أمر',name:'الاسم',email:'البريد الإلكتروني',pw:'كلمة السر (8 أحرف على الأقل)',go:'دخول',mk:'إنشاء الحساب',
+ note:'حسابات الممرضين يفعّلها المسؤول. إن كنت ممرضًا فأنشئ حسابًا ثم اطلب من المسؤول تفعيله.',chk:'تم إنشاء الحساب. افتح بريدك واضغط رابط التأكيد ثم سجّل الدخول.',
+ hi:'مرحبًا، ',role_caregiver:'ولي أمر',role_nurse:'ممرض/ممرضة',role_admin:'مسؤول',role_child:'طفل',
+ code:'أدخل كود العائلة الذي أعطاك إياه ممرض طفلك',cph:'XXXXX-XXXXX',enter:'ربط الحساب',linked:'تم الربط بطفلك بنجاح.',bad:'الكود غير صحيح أو استُخدم أو انتهى. اطلب كودًا جديدًا من الممرض.',lock:'محاولات خاطئة كثيرة. حاول بعد 15 دقيقة أو اطلب المساعدة من الممرض.',
+ mychild:'طفلي',nurseis:'الممرض/الممرضة',cons:'موافقات الأهل',c_data_collection:'السماح بجمع مشاركات الطفل (مطلوب لاستخدام التطبيق)',c_share_feelings_summary:'مشاركة ملخص المشاعر معي',c_share_health_summary:'مشاركة ملخص بلاغات الصحة معي',c_media_photos:'السماح بحفظ الصور',
+ consn:'بدون موافقة «جمع المشاركات» لا يستطيع الطفل حفظ أي شيء. يمكنك تغييرها في أي وقت.',nogate:'أدخل كود الممرض الخاص بك',ncode:'كود الممرض',verify:'تحقق',nbad:'كود غير صحيح',
+ mycode:'كودك الخاص (لا تشاركه)',addc:'تسجيل طفل جديد',nick:'اسم الطفل المستعار (وليس الاسم الكامل)',band:'الفئة العمرية',add:'تسجيل الطفل',kids:'أطفالي',nokids:'لا يوجد أطفال بعد.',
+ mkcode:'إنشاء كود عائلة',newc:'الكود (يظهر الآن مرة واحدة فقط، سجّله وسلّمه للأهل):',copy:'نسخ',copied:'تم النسخ',codes:'الأكواد',active:'فعّال',used:'مُستخدم',exp:'منتهٍ',
+ fam:'الأهل المرتبطون',revoke:'إلغاء الارتباط',st_active:'فعّال',st_revoked:'ملغى',st_pending:'معلّق',
+ adm:'أدوات المسؤول: تفعيل الممرضين وتعيين الأدوار تتم حاليًا عبر ملف 04 في SQL Editor.',chd:'حسابات الأطفال تُربط في المرحلة القادمة.',err:'حدث خطأ. حاول مرة أخرى.',bad_login:'البريد أو كلمة السر غير صحيحة.',short:'أكمل كل الحقول (كلمة السر 8 أحرف على الأقل).'},
+en:{lang:'العربية',so:'Sign out',foot:'Educational and supportive prototype. Not a diagnostic, treatment or emergency tool, and not clinically approved or legally reviewed. Do not enter real patient data.',
+ signin:'Sign in',signup:'Create a caregiver account',name:'Name',email:'Email',pw:'Password (at least 8 characters)',go:'Sign in',mk:'Create account',
+ note:'Nurse accounts are enabled by the administrator. If you are a nurse, create an account and ask the administrator to enable it.',chk:'Account created. Open your email, click the confirmation link, then sign in.',
+ hi:'Hello, ',role_caregiver:'Caregiver',role_nurse:'Nurse',role_admin:'Administrator',role_child:'Child',
+ code:'Enter the family code your child’s nurse gave you',cph:'XXXXX-XXXXX',enter:'Link my account',linked:'Linked to your child successfully.',bad:'The code is wrong, already used, or expired. Ask the nurse for a new one.',lock:'Too many wrong attempts. Try again in 15 minutes or ask the nurse for help.',
+ mychild:'My child',nurseis:'Nurse',cons:'Caregiver consents',c_data_collection:'Allow collecting the child’s entries (required to use the app)',c_share_feelings_summary:'Share a feelings summary with me',c_share_health_summary:'Share a health-report summary with me',c_media_photos:'Allow saving photos',
+ consn:'Without “collect entries” consent the child cannot save anything. You can change this at any time.',nogate:'Enter your personal nurse code',ncode:'Nurse code',verify:'Verify',nbad:'Wrong code',
+ mycode:'Your private code (do not share)',addc:'Register a new child',nick:'Child’s nickname (not full name)',band:'Age group',add:'Register child',kids:'My children',nokids:'No children yet.',
+ mkcode:'Create family code',newc:'Code (shown once only now. Write it down and give it to the family):',copy:'Copy',copied:'Copied',codes:'Codes',active:'Active',used:'Used',exp:'Expired',
+ fam:'Linked caregivers',revoke:'Revoke access',st_active:'Active',st_revoked:'Revoked',st_pending:'Pending',
+ adm:'Admin tools: enabling nurses and setting roles is currently done with file 04 in the SQL Editor.',chd:'Child accounts are connected in the next phase.',err:'Something went wrong. Please try again.',bad_login:'Wrong email or password.',short:'Fill in every field (password at least 8 characters).'}};
+const t=k=>T[S.lang][k]||k,esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s),fd=d=>d?new Date(d).toLocaleDateString(S.lang==='ar'?'ar-JO':'en-GB'):'';
+function L(){S.lang=S.lang==='ar'?'en':'ar';R()}
+function R(){document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==='ar'?'rtl':'ltr';$('#lg').textContent=t('lang');$('#ft').textContent=t('foot');
+ $('#so').hidden=!S.user;$('#so').textContent=t('so');
+ $('#app').innerHTML=(S.msg?`<p class="card ok" role="status">${esc(S.msg)}</p>`:'')+(S.err?`<p class="card err" role="alert">${esc(S.err)}</p>`:'')+(!S.user?authV():!S.prof?'':({caregiver:careV,nurse:nurseV,admin:()=>`<div class="card">${t('adm')}</div>`,child:()=>`<div class="card">${t('chd')}</div>`}[S.prof.role]||careV)())}
+function say(m,e){S.msg=m||'';S.err=e||'';R()}
+function authV(){const up=S.mode==='up';return`<div class="card"><div class="row"><button class="${up?'':'on'}" onclick="S.mode='in';say()">${t('signin')}</button><button class="${up?'on':''}" onclick="S.mode='up';say()">${t('signup')}</button></div>
+${up?`<label>${t('name')}<input id="nm" maxlength="60" autocomplete="name"></label>`:''}<label>${t('email')}<input id="em" type="email" dir="ltr" autocomplete="email"></label><label>${t('pw')}<input id="pw" type="password" autocomplete="${up?'new-password':'current-password'}"></label>
+<button class="pri" onclick="${up?'signUp()':'signIn()'}">${up?t('mk'):t('go')}</button>${up?`<p><small>${t('note')}</small></p>`:''}</div>`}
+async function signUp(){const n=$('#nm').value.trim(),e=$('#em').value.trim(),p=$('#pw').value;if(!n||!e||p.length<8)return say('',t('short'));
+ const{data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{display_name:n}}});if(error)return say('',error.message);
+ if(data.session){S.user=data.user;await loadAll();say()}else{S.mode='in';say(t('chk'))}}
+async function signIn(){const{data,error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+ if(error)return say('',t('bad_login'));S.user=data.user;S.nok=false;await loadAll();say()}
+async function out(){await sb.auth.signOut();S.user=S.prof=null;S.nok=false;S.nc=null;S.kids=[];say()}
+async function loadAll(){try{const{data,error}=await sb.from('profiles').select('role,display_name,nurse_code').eq('id',S.user.id).single();if(error)throw error;S.prof=data;
+ if(data.role==='caregiver'||data.role==='nurse'){const k=await sb.from('child_profiles').select('id,nickname,age_group').order('created_at');S.kids=k.data||[];
+  if(data.role==='caregiver'){S.cons={};for(const c of S.kids){const r=await sb.from('consent_records').select('consent_type,granted,recorded_at').eq('child_id',c.id).order('recorded_at',{ascending:false});S.cons[c.id]={};for(const x of r.data||[])if(!(x.consent_type in S.cons[c.id]))S.cons[c.id][x.consent_type]=x.granted;
+   const n=await sb.rpc('child_nurses',{c:c.id});c.nurses=(n.data||[]).map(x=>x.display_name)}}
+  else{const cd=await sb.from('family_codes').select('id,child_id,expires_at,used_at,created_at').order('created_at',{ascending:false}),rl=await sb.from('caregiver_relationships').select('id,child_id,status,verified_at');
+   S.codes={};S.rels={};for(const x of cd.data||[])(S.codes[x.child_id]=S.codes[x.child_id]||[]).push(x);for(const x of rl.data||[])(S.rels[x.child_id]=S.rels[x.child_id]||[]).push(x)}}
+ }catch(e){S.err=t('err')}}
+// ---- caregiver
+function careV(){return`<h2>${t('hi')}${esc(S.prof.display_name)} <small>(${t('role_'+S.prof.role)})</small></h2>
+<div class="card"><b>${t('code')}</b><input id="fc" dir="ltr" maxlength="12" autocomplete="off" placeholder="${t('cph')}"><button class="pri" onclick="redeem()">${t('enter')}</button></div>
+${S.kids.map(c=>`<div class="card"><h3>👧 ${t('mychild')}: ${esc(c.nickname)} <small>(${esc(c.age_group)})</small></h3><p>${t('nurseis')}: <b>${esc((c.nurses||[]).join('، ')||'—')}</b></p><h3>${t('cons')}</h3>
+${CT.map(k=>`<label style="display:flex;gap:10px;align-items:center"><input type="checkbox" style="width:28px;height:28px;margin:0" ${S.cons[c.id]?.[k]?'checked':''} onchange="setCons('${c.id}','${k}',this.checked)"> ${t('c_'+k)}</label>`).join('')}<p><small>${t('consn')}</small></p></div>`).join('')}`}
+async function redeem(){const v=$('#fc').value.trim();if(!v)return;const{data,error}=await sb.rpc('redeem_family_code',{p:v});
+ if(error)return say('',/too many/i.test(error.message)?t('lock'):t('err'));if(!data)return say('',t('bad'));await loadAll();say(t('linked'))}
+async function setCons(cid,k,g){const{error}=await sb.from('consent_records').insert({child_id:cid,consent_type:k,granted:g,granted_by:S.user.id});if(error)say('',t('err'));else{S.cons[cid][k]=g}}
+// ---- nurse
+function nurseV(){if(!S.nok)return`<div class="card"><h2>🩺 ${t('nogate')}</h2><input id="nc" dir="ltr" maxlength="8" autocomplete="off" placeholder="N____" aria-label="${t('ncode')}"><button class="pri" onclick="verify()">${t('verify')}</button></div>`;
+return`<h2>${t('hi')}${esc(S.prof.display_name)} <small>(${t('role_nurse')})</small></h2><p class="card warn">${t('mycode')}: <b dir="ltr">${esc(S.prof.nurse_code)}</b></p>
+<div class="card"><h3>${t('addc')}</h3><input id="kn" maxlength="30" placeholder="${t('nick')}" aria-label="${t('nick')}"><select id="kb" aria-label="${t('band')}"><option>5-7</option><option selected>8-10</option><option>11-12</option></select><button class="pri" onclick="addKid()">${t('add')}</button></div>
+<h3>${t('kids')}</h3>${S.kids.length?S.kids.map(kidV).join(''):`<p>${t('nokids')}</p>`}`}
+const cst=c=>c.used_at?t('used'):new Date(c.expires_at)<new Date()?t('exp'):t('active');
+function kidV(c){const nc=S.nc&&S.nc.kid===c.id?S.nc.code:null;return`<div class="card"><h3>👧 ${esc(c.nickname)} <small>(${esc(c.age_group)})</small></h3><button class="pri" onclick="mkCode('${c.id}')">${t('mkcode')}</button>
+${nc?`<p><b>${t('newc')}</b></p><div class="code">${esc(nc)}</div><button onclick="navigator.clipboard&&navigator.clipboard.writeText('${esc(nc)}').then(()=>say(t('copied')))">${t('copy')}</button>`:''}
+${(S.codes[c.id]||[]).length?`<h3>${t('codes')}</h3>${S.codes[c.id].map(x=>`<div>🔑 ${cst(x)} <small>${fd(x.created_at)}</small></div>`).join('')}`:''}
+${(S.rels[c.id]||[]).length?`<h3>${t('fam')}</h3>${S.rels[c.id].map(r=>`<div class="row">👪 ${t('st_'+r.status)} <small>${fd(r.verified_at)}</small>${r.status==='active'?`<button onclick="revoke('${r.id}')">${t('revoke')}</button>`:''}</div>`).join('')}`:''}</div>`}
+async function verify(){const{data,error}=await sb.rpc('nurse_verify_code',{p:$('#nc').value.trim().toUpperCase()});if(error)return say('',/too many/i.test(error.message)?t('lock'):t('err'));if(data){S.nok=true;say()}else say('',t('nbad'))}
+async function addKid(){const n=$('#kn').value.trim();if(!n)return;const{error}=await sb.rpc('nurse_create_child',{nick:n,band:$('#kb').value});if(error)return say('',t('err'));await loadAll();say()}
+async function mkCode(id){const{data,error}=await sb.rpc('nurse_create_family_code',{c:id});if(error)return say('',t('err'));S.nc={kid:id,code:data};await loadAll();say()}
+async function revoke(id){const{error}=await sb.rpc('nurse_revoke_caregiver',{rel:id});if(error)return say('',t('err'));await loadAll();say()}
+// ---- start
+(async()=>{try{const{data}=await sb.auth.getSession();if(data.session){S.user=data.session.user;await loadAll()}}catch(e){}R()})();
+</script></body></html>
