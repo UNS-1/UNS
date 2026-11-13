@@ -35,7 +35,7 @@ grant update(display_name, preferred_language) on profiles to authenticated;
 create policy p_sel on profiles for select to authenticated using (id = auth.uid() or is_admin());
 create policy p_upd on profiles for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
 
--- child_profiles: child, active caregiver, assigned nurse. Creation only via create_child_profile().
+-- child_profiles: child, active caregiver, assigned nurse. Creation only via nurse_create_child().
 grant select on child_profiles to authenticated;
 grant update(nickname, avatar, theme, comm_method, language) on child_profiles to authenticated;
 create policy c_sel on child_profiles for select to authenticated
@@ -118,16 +118,4 @@ create policy ac_w on activities for all to authenticated using (is_admin()) wit
 grant select on audit_logs to authenticated;
 create policy al_sel on audit_logs for select to authenticated using (is_admin());
 
--- ---------- Storage (Supabase) ----------
--- Private bucket; objects are stored as <child_id>/<file>. No public URLs.
-insert into storage.buckets(id, name, public) values ('child-media', 'child-media', false) on conflict (id) do nothing;
-insert into storage.buckets(id, name, public) values ('content-assets', 'content-assets', false) on conflict (id) do nothing;
-
-create policy media_sel on storage.objects for select to authenticated
-  using (bucket_id = 'child-media' and (is_child_self(((storage.foldername(name))[1])::uuid) or is_caregiver_of(((storage.foldername(name))[1])::uuid)));
-create policy media_ins on storage.objects for insert to authenticated
-  with check (bucket_id = 'child-media' and (is_child_self(((storage.foldername(name))[1])::uuid) or is_caregiver_of(((storage.foldername(name))[1])::uuid)));
-create policy media_del on storage.objects for delete to authenticated
-  using (bucket_id = 'child-media' and (is_child_self(((storage.foldername(name))[1])::uuid) or is_caregiver_of(((storage.foldername(name))[1])::uuid)));
-create policy assets_sel on storage.objects for select to authenticated using (bucket_id = 'content-assets');
-create policy assets_w on storage.objects for all to authenticated using (bucket_id = 'content-assets' and is_admin()) with check (bucket_id = 'content-assets' and is_admin());
+-- Storage policies are in 02b_storage.sql (run it separately).

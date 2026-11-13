@@ -17,6 +17,9 @@ A bilingual (Arabic/English) **prototype** of a child-centered digital companion
 ## Real accounts (connected to Supabase)
 `app.html` is the connected app: real sign-up/sign-in, nurse code, nurse registers children and creates single-use family codes, caregivers link with a code and manage consents. `config.js` holds the public URL and publishable key only (never the secret/service_role key). `supabase.js` is a pinned local copy of supabase-js.
 
+## Folders
+`fonts/` self-hosted fonts · `theme.css`/`theme.js` shared themes · `tests/` (run `npm install` then `npm test`; `npm run test:db` needs PostgreSQL) · `BODYMAP.md` (body figure for My Health: design, data, limits) · `bodymap.js` · `PERSONALIZATION.md` (age-based personalization design, rules and limits) · `personalize.js`/`personalize.css` (engine and age presentation) · `catalog.js` (the five-dimension framework: dimensions, objectives, every activity's classification) · `FRAMEWORK.md` (generated; includes the coverage map and known gaps) · `tools/` · `REMEDIATION.md` audit fixes · `backend/README.md` database deployment order.
+
 ## Contents
 - `index.html` — the whole prototype (single file, no build step).
 - `backend/` — PostgreSQL/Supabase schema, row-level security, nurse codes and family codes, fictional seed data, technical documentation (not connected to the site yet).

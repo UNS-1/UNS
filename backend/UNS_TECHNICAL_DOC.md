@@ -109,3 +109,10 @@ Still to test on a real Supabase project: storage policies, signup flow, session
 - MFA and short session lifetimes for nurses and admins; rate limiting; backups; an incident-response plan.
 - Child sign-in design (accounts are created by an admin and linked with `admin_link_child_user()`; a supervised-session alternative may suit younger children).
 - Clinical review of all content and signal rules, licensed FPS-R artwork, legal and data-protection review for the deployment country, and ethics approval if used with real patients.
+
+## 9. Phase 1 hardening (file 05)
+
+- **Authenticator required for staff.** `is_nurse_of()` and `is_admin()` now also require an aal2 session (the user verified a TOTP code). A nurse or admin who has only signed in with a password sees no children, cannot register children, create codes, or call admin functions. Caregivers and children are not affected.
+- **Nurse code.** It is an identifier shown after verification, no longer the security factor. New codes are `N` plus 7 characters. Existing codes are unchanged.
+- **Audit reads.** The website calls `log_access()` when a nurse (after MFA) or caregiver loads a child.
+- **Rollback:** `05_rollback.sql`. **Tests:** `tests/db/run.sh` (13 checks, scratch database with stand-ins for Supabase auth/storage). Not yet run on a live Supabase project.

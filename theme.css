@@ -1,0 +1,12 @@
+/* UNS shared theme: 5 light child themes + 1 calm light care theme. Used by index.html and app.html.
+   Always light on purpose (also when the device is in dark mode). --ring is the focus/selection outline color. */
+:root{color-scheme:light}
+:root[data-th=sky]{--bg:#F3EEFB;--tx:#4a3d66;--lav:#D7CBF2;--pink:#EBD8F0;--blue:#D3DDF7;--mint:#D5E8F0;--peach:#E9DDF2;--card:#fff;--ac:#6f55b0;--ring:#6f55b0}
+:root[data-th=gar]{--bg:#F4FAF0;--tx:#3a5440;--lav:#DCE8CF;--pink:#F6E1E6;--blue:#D8EEE6;--mint:#CFEBD3;--peach:#F8E7CD;--card:#fff;--ac:#3f7a4b;--ring:#3f7a4b}
+:root[data-th=sea]{--bg:#EEF8FC;--tx:#2b536b;--lav:#CFE3F7;--pink:#D8EEF2;--blue:#BFE3F4;--mint:#C9EEE6;--peach:#F5E6D3;--card:#fff;--ac:#2a77a6;--ring:#2a77a6}
+:root[data-th=cl]{--bg:#FFF6F9;--tx:#68465a;--lav:#E7D9F3;--pink:#F8D9E6;--blue:#DCEBFA;--mint:#E3F1EA;--peach:#FBE4D6;--card:#fff;--ac:#a9507f;--ring:#a9507f}
+:root[data-th=sun]{--bg:#FFF9E8;--tx:#5f4a26;--lav:#F3E6C8;--pink:#FBE0CF;--blue:#FDEFC0;--mint:#E6F0C8;--peach:#FADDB5;--card:#fff;--ac:#9a6200;--ring:#9a6200}
+:root[data-th=care]{--bg:#F4F8FA;--tx:#34475a;--lav:#D9E4EE;--pink:#E6ECF2;--blue:#D3E3EE;--mint:#D6EAE4;--peach:#ECE9E1;--card:#fff;--ac:#356c93;--ring:#356c93}
+#th{display:flex;gap:6px}#th[hidden]{display:none}
+.dot{min-width:44px;height:44px;padding:0;border-radius:50%;border:3px solid var(--card)}.dot[aria-pressed=true]{outline:3px solid var(--ring,var(--ac));outline-offset:2px}
+@media (max-width:480px){body{font-size:17px}main{padding:12px}header{padding:8px 10px}.nav{min-height:110px}.big{font-size:36px}}

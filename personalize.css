@@ -1,0 +1,16 @@
+/* Age-based presentation (set through <html data-age>). 9-10 keeps the base look. Nothing is hidden: only size, density and tone change. */
+:root[data-age="7-8"] body{font-size:20px}
+:root[data-age="7-8"] button{min-height:56px;border-radius:22px}
+:root[data-age="7-8"] .card{border-radius:30px}
+:root[data-age="7-8"] .nav{min-height:150px;font-size:21px}
+:root[data-age="7-8"] .big{font-size:56px}
+:root[data-age="7-8"] .grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+:root[data-age="7-8"] .lumi{font-size:110px}
+:root[data-age="11-12"] body{font-size:17px}
+:root[data-age="11-12"] button{min-height:46px;border-radius:12px}
+:root[data-age="11-12"] .card{border-radius:14px;box-shadow:0 1px 4px #0002}
+:root[data-age="11-12"] .nav{min-height:96px;font-size:16px}
+:root[data-age="11-12"] .big{font-size:32px}
+:root[data-age="11-12"] .grid{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+:root[data-age="11-12"] .lumi{font-size:64px;animation:none}
+:root[data-age="11-12"] h1,:root[data-age="11-12"] h2{letter-spacing:0}
