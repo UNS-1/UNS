@@ -2,7 +2,7 @@
   "name": "uns-site",
   "private": true,
   "scripts": {
-    "test": "node tests/unit/engine.test.js && node tests/unit/bodymap.test.js && node tests/ui/smoke.test.js && node tests/ui/app.test.js && node tests/ui/framework.test.js && node tests/ui/personalize.test.js && node tests/ui/bodymap.test.js && node tests/ui/daily.test.js && node tests/ui/wishes_people.test.js && node tests/ui/planner.test.js && node tests/ui/library.test.js",
+    "test": "node tests/unit/engine.test.js && node tests/unit/bodymap.test.js && node tests/ui/smoke.test.js && node tests/ui/app.test.js && node tests/ui/framework.test.js && node tests/ui/personalize.test.js && node tests/ui/bodymap.test.js && node tests/ui/daily.test.js && node tests/ui/wishes_people.test.js && node tests/ui/planner.test.js && node tests/ui/insights.test.js && node tests/ui/library.test.js && node tests/ui/mirror.test.js",
     "test:db": "bash tests/db/run.sh",
     "framework": "node tools/gen_framework.js"
   },

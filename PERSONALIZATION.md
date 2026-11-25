@@ -10,7 +10,7 @@
 | Group | Idea | Presentation | Starting suggestions |
 |---|---|---|---|
 | **7-8** Discovery | Foundational, short clear steps | Larger text and buttons, bigger tiles, picture-first, simplest coloring pictures first, shorter instructions, puzzle help on | Puzzle 6 pieces, memory 3 pairs, matching 3 options, one quiz question |
-| **9-10** Exploration | Skill building, medium challenge | The base look | Puzzle 9, memory 4 pairs, matching 3 options, two quiz questions, puzzle help on |
+| **9-10** Adventure | Skill building, medium challenge | The base look | Puzzle 9, memory 4 pairs, matching 3 options, two quiz questions, puzzle help on |
 | **11-12** Independence | Choice, control, bigger challenges | Compact, text-first, calmer tone (no exclamation marks), detailed pictures first, puzzle help off | Puzzle 16, memory 6 pairs, matching 4 options, two quiz questions plus a reflection prompt |
 Home-screen order also differs by age (Health stays second for everyone). Legacy accounts stored as 5-7 or 8-10 map to 7-8 and 9-10 and are flagged for a caregiver to confirm.
 

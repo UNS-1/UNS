@@ -5,7 +5,7 @@ Generated from `catalog.js` (do not edit by hand; run `node tools/gen_framework.
 ## Principles
 - **Real objectives, not decorative tags.** An activity's dimensions are *derived* from its objectives; each objective belongs to exactly one dimension. An activity can support several dimensions.
 - **Play, not assessment.** Nothing in UNS scores, tests, rates or diagnoses a child. The library shows what an activity practises and what the child has tried, never a result.
-- **Age groups** are 7-8 (Discovery), 9-10 (Exploration) and 11-12 (Independence). Age sets the starting point and presentation, never access.
+- **Age groups** are 7-8 (Discovery), 9-10 (Adventure) and 11-12 (Independence). Age sets the starting point and presentation, never access.
 - **Classification fields** for every activity: id, type, primary dimension, objectives (hence all dimensions), age bands, a one-sentence description of what it practises, and the screen it opens.
 - **Honest coverage.** The coverage map below lists objectives that no activity supports yet; they are gaps to fill, not hidden.
 
@@ -16,8 +16,8 @@ Memory, attention, thinking, problem-solving and creativity.
 
 | Objective | Activities | 7-8 | 9-10 | 11-12 |
 |---|---|---|---|---|
-| Memory | 3 | 3 | 2 | 1 |
-| Attention | 2 | 2 | 1 | 0 |
+| Memory | 3 | 3 | 3 | 2 |
+| Attention | 2 | 2 | 2 | 1 |
 | Concentration | 2 | 2 | 2 | 1 |
 | Logical reasoning | 2 | 2 | 2 | 2 |
 | Creativity | 2 | 2 | 2 | 1 |
@@ -80,7 +80,7 @@ Independence, responsibility, decisions, organization, safety and healthy habits
 | Id | Activity | Type | Primary | All dimensions | Objectives | Suggested ages | Adapts |
 |---|---|---|---|---|---|---|---|
 | memory | Memory Cards | Game | Cognitive development | Cognitive development | Memory, Attention, Concentration | 7-8, 9-10 | perf |
-| match | Match the Picture | Game | Cognitive development | Cognitive development | Attention, Memory | 7-8 | perf |
+| match | Magic Bubbles | Game | Cognitive development | Cognitive development | Attention, Memory | 7-8, 9-10, 11-12 | perf |
 | puzzle | Puzzle Game | Game | Cognitive development | Cognitive development, Physical and motor development | Logical reasoning, Problem-solving, Concentration, Fine motor skills, Hand-eye coordination | 7-8, 9-10, 11-12 | perf |
 | coloring | Coloring Album | Creative | Physical and motor development | Physical and motor development, Cognitive development, Emotional and psychological development | Fine motor skills, Hand-eye coordination, Creativity, Expressing emotions | 7-8, 9-10 | age |
 | drawing | Drawing Canvas | Creative | Emotional and psychological development | Emotional and psychological development, Cognitive development, Physical and motor development | Expressing emotions, Creativity, Fine motor skills, Hand-eye coordination | 7-8, 9-10, 11-12 | age |
@@ -104,7 +104,7 @@ Independence, responsibility, decisions, organization, safety and healthy habits
 - **No activity yet:** Critical thinking, Friendship, Teamwork, Conflict resolution, Balance, Gross motor skills, Movement, Organization, Time management.
 - **Physical and motor** currently covers only fine-motor and hand-eye skills. Gross-motor, balance and movement activities need **clinical review** before being offered to children with medical conditions (same rule as breathing exercises).
 - **Social** objectives such as friendship, teamwork and conflict resolution need peer or scripted-scenario activities; peer messaging is deliberately excluded for child safeguarding.
-- **Ages 11-12** have few challenging activities: 10 of 34 objectives have none for this band.
+- **Ages 11-12** have few challenging activities: 9 of 34 objectives have none for this band.
 
 ## Adding an activity
 Add one `A(...)` line to `catalog.js` with objectives that the activity genuinely practises, a plain-language description, and the real age bands; the screen, filters, coverage map, tests and SQL follow automatically. `npm test` rejects missing objectives, unknown keys and empty descriptions.

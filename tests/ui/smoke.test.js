@@ -27,16 +27,18 @@ const { load, tick, assert, pass, read } = require('./load');
   w.go('home'); assert.strictEqual(d.documentElement.getAttribute('data-th'), 'sea'); assert.strictEqual(w.localStorage.getItem('uns_theme'), 'sea');
   pass('5 themes from shared theme.js; calm care theme for nurse screens; choice persisted');
 
-  // --- onboarding: 6 steps
-  w.go('onb'); const next = () => d.querySelector('#app button.pri').click();
-  assert(/1\/7/.test(d.querySelector('#app').textContent));
-  next(); next(); next(); // -> step 3 (communication)
-  assert.strictEqual(d.querySelectorAll('#app .chips button').length, 4); d.querySelectorAll('#app .chips button')[3].click();
-  next(); assert.strictEqual(d.querySelectorAll('#app .chips button').length, 5); d.querySelectorAll('#app .chips button')[0].click(); d.querySelectorAll('#app .chips button')[3].click();
-  next(); assert.strictEqual(d.querySelectorAll('#app .chips button').length, 3, 'age step offers 3 bands'); d.querySelectorAll('#app .chips button')[1].click();
-  next(); assert.strictEqual(d.querySelectorAll('#app .grid .card').length, 8, 'guided tour lists 8 sections'); assert.strictEqual(w.eval('ST.ab'), '9-10');
-  assert.strictEqual(JSON.stringify(w.eval('ST.fa')), '["draw","puzzle"]'); assert.strictEqual(w.eval('ST.cm'), 'mix');
-  pass('onboarding has 7 steps: nickname, avatar, theme, communication mode, activities, age band, guided tour');
+  // --- onboarding: one page (nickname, avatar, theme, communication, activities, age)
+  w.go('onb'); const chipsOf = i => d.querySelectorAll('#app .chips')[i].querySelectorAll('button');
+  assert.strictEqual(d.querySelectorAll('#app .chips').length, 5, 'one page holds all five choice groups');
+  assert(d.querySelector('#nk'), 'nickname field is on the same page');
+  assert(!/1\/7/.test(d.querySelector('#app').textContent), 'no step counter');
+  assert.strictEqual(chipsOf(2).length, 4); chipsOf(2)[3].click();
+  assert.strictEqual(chipsOf(3).length, 5); chipsOf(3)[0].click(); chipsOf(3)[3].click();
+  assert.strictEqual(chipsOf(4).length, 3, 'age offers 3 bands'); chipsOf(4)[1].click();
+  assert.strictEqual(w.eval('ST.ab'), '9-10');
+  assert.strictEqual(JSON.stringify(w.eval('ST.fa')), '[\"draw\",\"puzzle\"]'); assert.strictEqual(w.eval('ST.cm'), 'mix');
+  d.querySelector('#app button.pri').click(); assert.strictEqual(w.eval('ST.view'), 'home', 'start button goes straight home');
+  pass('onboarding is a single page: nickname, avatar, theme, communication mode, activities, age band');
 
   // --- wishes without alert
   w.go('wish'); d.querySelectorAll('#app .chips button')[0].click(); assert(d.querySelector('#app [role=status]'), 'in-page confirmation');

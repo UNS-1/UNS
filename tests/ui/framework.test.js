@@ -27,31 +27,26 @@ const { load, tick, assert, pass, read } = require('./load');
   for (const [v, id] of Object.entries({ mem: 'memory', match: 'match', puzzle: 'puzzle', album: 'coloring', draw: 'drawing', story: 'story', feel: 'feelings', health: 'health', wish: 'wishes', people: 'people', pets: 'pets', jour: 'journey' })) { w.eval(`ST.view='${v}'`); assert.strictEqual(w.actOfView(), id, v + ' maps to ' + id); }
   pass('all existing activities still exist and each screen maps to a classified activity');
 
-  // ---- library UI
-  w.go('skills'); const cards = () => d.querySelectorAll('#app > .card:not(.c3):not(.c4)').length;
-  assert.strictEqual(w.eval('ST.skf.a'), '', 'no age chosen shows all ages');
-  const total = () => { const m = d.querySelector('#app').textContent.match(/(\d+)\s*(?:نشاط|activities)/); return +m[1]; };
-  assert.strictEqual(total(), 20);
-  w.skf('d', 'phy'); const phy = total(); assert(phy > 0 && phy < 20); assert(w.eval('ACT.filter(a=>a.dims.includes("phy")).length') === phy);
-  w.skf('o', 'finemotor'); assert(total() <= phy && total() > 0); w.skf('o', 'finemotor'); assert.strictEqual(total(), phy, 'objective chip toggles off');
-  w.skf('d', 'soc'); w.skf('o', 'friendship'); assert.strictEqual(total(), 0); assert(/لا توجد|No activities/.test(d.querySelector('#app').textContent), 'empty state is explained');
-  w.skf('d', ''); w.skf('a', '7-8'); const a57 = total(); w.skf('a', '11-12'); const a1112 = total(); assert(a57 > a1112 && a1112 > 0, 'age filter narrows the list');
-  w.skf('a', ''); w.skf('t', 'game'); assert.strictEqual(total(), 3); w.skf('t', '');
+  // ---- parents area: skills tab (the old child-side library moved here)
+  w.eval('ST.cok=1'); w.go('care'); w.eval("ST.ct='skl'"); w.R();
+  assert(d.querySelector('.skl'), 'skills tab exists in the parents area'); assert.strictEqual(d.querySelectorAll('.skl .hl-card').length, 5, 'five skill areas');
   const gaps = Object.keys(OBJ).filter(k => !ACT.some(a => a.objs.includes(k))); assert(gaps.length > 0);
-  assert.strictEqual(d.querySelectorAll('details .pill').length, gaps.length, 'coverage map shows every uncovered objective as a gap');
-  pass('filters by dimension, objective, age and type work; empty state explained; coverage map lists the real gaps (' + gaps.length + ')');
+  assert.strictEqual(d.querySelectorAll('.skl details .pill').length, gaps.length, 'the team coverage map still lists every uncovered objective as a gap');
+  w.go('home'); assert(![...d.querySelectorAll('#app .grid > button.nav')].some(b => /skills/.test(b.getAttribute('onclick'))), 'no skills tile for the child');
+  w.go('skills'); assert.strictEqual(w.eval('ST.view'), 'home', 'the old route goes home');
+  pass('skills moved to the parents area; coverage map kept for the team (' + gaps.length + ' gaps); child home has no skills tile');
 
-  // ---- balanced set integrates all five dimensions for every age band
-  for (const b of BANDS) { w.eval(`ST.skf={d:'',a:'${b}',t:'',o:''}`); const set = w.balancedSet(); assert.strictEqual(set.length, 5, b); assert.strictEqual(new Set(set.map(x => x[1].id)).size, 5, 'five different activities'); for (const [dim, a] of set) { assert(a.dims.includes(dim) && a.ages.includes(b)); } }
-  pass('the balanced daily set offers 5 different, age-appropriate activities, one per dimension, for every age band');
+  // ---- suggestions: five different age-appropriate activities for every age band, never from private areas
+  for (const b of BANDS) { w.eval(`ST.ab='${b}'`); w.eval('D.focus=[]'); const set = w.eval('sklPick(5)'); assert.strictEqual(new Set(set.map(x => x.id)).size, 5, b + ': five different activities'); for (const a of set) assert(a.ages.includes(b) && !w.eval('SKL_EX').includes(a.id)); }
+  pass('suggestions are 5 different, age-appropriate activities for every age band, never from private areas');
 
   // ---- launch + strip + tried
-  w.go('home'); assert(!d.querySelector('#app details'), 'no strip on the home screen');
-  w.launch('puzzle'); assert.strictEqual(w.eval('ST.view'), 'puzzle'); assert(d.querySelector('#app details'), 'puzzle shows what it builds');
+  w.eval('ST.cok=0'); w.go('home'); assert(!d.querySelector('#app details'), 'no strip on the home screen');
+  w.launch('puzzle'); assert.strictEqual(w.eval('ST.view'), 'puzzle'); assert(!d.querySelector('#app details'), 'the child does not see the builder box');
+  w.eval('ST.cok=1'); w.launch('puzzle'); assert(d.querySelector('#app details'), 'parents see what puzzle builds');
   w.launch('acad-4'); assert.strictEqual(w.eval('ST.view') + w.eval('ST.top'), 'acad4'); assert(/regulation|تنظيم المشاعر/i.test(d.querySelector('#app details').textContent));
-  w.go('skills'); assert(/✓/.test(d.querySelector('#app').textContent), 'tried activities are marked, without scores');
-  assert(!/%|\/\s*\d+\s*(?:activities|نشاط)/.test(d.querySelector('#app').textContent.replace(/\(\d+–\d+[^)]*\)/g, '')), 'no percentages or progress scores');
+  assert(w.eval('D.tried.has("puzzle")'), 'tried activities are remembered, without scores');
   assert.deepStrictEqual(w.__errs, []);
-  pass('launch opens the right screen (including academy topics); each activity shows what it builds; tried marks without scores');
+  pass('launch opens the right screen (including academy topics); parents see what each activity builds; tried is remembered without scores');
   console.log('ALL FRAMEWORK TESTS PASSED');
 })().catch(e => { console.error('FAIL', e.message); process.exit(1); });

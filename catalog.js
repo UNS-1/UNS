@@ -20,7 +20,7 @@ const ALL=['7-8','9-10','11-12'];
 const A=(id,view,ic,t,type,pri,objs,ages,how,acad)=>({id,view,ic,t,type,pri,objs,ages,how,acad});
 const ACT=[
  A('memory','mem','🃏',['ذاكرة البطاقات','Memory Cards'],'game','cog',['memory','attention','concentration'],['7-8','9-10'],['تتدرّب على تذكّر أماكن البطاقات والانتباه للعبة.','Practises remembering where cards are and paying attention to the game.']),
- A('match','match','🧩',['طابق الصورة بالكلمة','Match the Picture'],'game','cog',['attention','memory'],['7-8'],['تربط الصورة باسمها، فتتدرّب على الانتباه والتذكّر.','Links each picture to its name, practising attention and recall.']),
+ A('match','match','🫧',['فقاعات السحر','Magic Bubbles'],'game','cog',['attention','memory'],ALL,['تفقع الفقاعة التي تطابق الكلمة أو الصورة أو المجموعة، فتتدرّب على الانتباه والتصنيف والكلمات.','Pops the bubble that matches a word, picture or group, practising attention, sorting and vocabulary.']),
  A('puzzle','puzzle','🖼️',['لعبة البازل','Puzzle Game'],'game','cog',['reasoning','problem','concentration','finemotor','coordination'],ALL,['تخطّط لمكان كل قطعة وتحرّكها، فتتدرّب على حل المشكلات والتفكير البصري. اختر قطعًا أكثر لتحدٍّ أكبر (2–9 للأصغر، 9–25 للأوسط، 25–49 للأكبر).','Plans where each piece goes and moves it, practising problem-solving and visual reasoning. More pieces means a bigger challenge (2–9 younger, 9–25 middle, 25–49 older).']),
  A('coloring','album','🖌️',['ألبوم التلوين','Coloring Album'],'creative','phy',['finemotor','coordination','creativity','expression'],['7-8','9-10'],['تلوّن بحرية، فتتدرّب على التحكم بحركة اليد وتختار الألوان للتعبير عن نفسك.','Free colouring practises hand control and lets you choose colours to express yourself.']),
  A('drawing','draw','🖍️',['لوحة الرسم','Drawing Canvas'],'creative','emo',['expression','creativity','finemotor','coordination'],ALL,['ترسم ما تشعر به أو تتخيّله، فتتدرّب على التعبير والإبداع وحركة اليد.','Draw what you feel or imagine, practising expression, creativity and hand control.']),
@@ -45,7 +45,7 @@ ACT.forEach(a=>{a.dims=[a.pri].concat([...new Set(a.objs.map(o=>OBJ[o][0]))].fil
 const _P=['يتكيّف مع طريقة لعبك: يتغيّر المستوى تدريجيًا، ويمكنك اختيار أي مستوى.','Adapts to how you play: the level changes gradually, and you can pick any level.'];
 const ADAPT={
  memory:['perf','عدد الأزواج (3–12) يتبع طريقة لعبك، ويمكنك اختيار أي عدد.','The number of pairs (3–12) follows how you play, and you can pick any number.'],
- match:['perf','عدد الخيارات وصعوبة الصور يتبعان طريقة لعبك، ويمكنك اختيار أي مستوى.','The number of choices and the picture difficulty follow how you play, and you can pick any level.'],
+ match:['perf','عدد الفقاعات ونوع السؤال (صورة، كلمة، مجموعة) يتبعان طريقة لعبك، ويمكنك اختيار أي مستوى.','The number of bubbles and the kind of question (picture, word, group) follow how you play, and you can pick any level.'],
  puzzle:['perf','يقترح عدد القطع بحسب أدائك، ويمكنك اختيار أي عدد من 2 إلى 49.','Suggests a number of pieces from how you play, and you can pick any number from 2 to 49.'],
  coloring:['age','ترتيب الصور بحسب العمر وتفاصيلها، وكلها متاحة لك.','Pictures are ordered by age and detail, and all are available to you.'],
  drawing:['age','أفكار الرسم وحجم الفرشاة المبدئي يناسبان عمرك.','Drawing ideas and the starting brush size suit your age.'],

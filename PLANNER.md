@@ -1,5 +1,12 @@
 # My Planner (مخططي): integration notes
 
+> **UPDATE v2026-11-19-d (owner request):** the planner moved to the **parents' area** (a section inside `careMain`, after the family code).
+> The child no longer has a planner tile, view or route (`#planner` opens the start page). The child only sees the 5th card of "Challenge of the Day",
+> which shows **exactly the tasks the family set for today** (non-medical categories only) with one tick button per time. Medicine, appointments and
+> consultations stay in the parents' area: never shown to the child, never counted, no reminder banner on the child screen.
+> If the family set nothing for today the card says so and counts as done (no sticker is paid for an empty day), so the child is never blocked.
+> Everything below describes the earlier child-owned design and is kept as history. Persistence still needs the child-account decision (phases 4-5).
+
 **Status:** phases 1-3 done in the demo (in memory, nothing saved to any account). Phases 4-7 are NOT done.
 
 ## Behaviour requested by the owner (implemented in the demo)

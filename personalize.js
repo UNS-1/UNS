@@ -7,7 +7,7 @@ const LEGACY_AGE={'5-7':'7-8','8-10':'9-10'};          // values already stored 
 const normAge=a=>AGES.includes(a)?a:(LEGACY_AGE[a]||'');
 const AGEP={
  '7-8':{ic:'🌱',name:['اكتشاف','Discovery'],desc:['نتعرّف على أشياء جديدة بخطوات قصيرة وواضحة.','Trying new things in short, clear steps.'],brush:12},
- '9-10':{ic:'🧭',name:['استكشاف','Exploration'],desc:['نستكشف ونبني مهارات بتحدٍّ متوسط.','Exploring and building skills with a medium challenge.'],brush:8},
+ '9-10':{ic:'🧭',name:['مغامرة','Adventure'],desc:['نخوض مغامرات صغيرة ونبني مهارات بتحدٍّ متوسط.','Going on small adventures and building skills with a medium challenge.'],brush:8},
  '11-12':{ic:'🚀',name:['استقلالية','Independence'],desc:['نختار بأنفسنا ونجرّب تحديات أكبر.','Choosing for yourself and trying bigger challenges.'],brush:5}};
 const GAMES={                                            // start = level used for the very first play; up/down = score thresholds
  puzzle:{max:7,start:{'7-8':2,'9-10':3,'11-12':4},up:.7,down:.35},

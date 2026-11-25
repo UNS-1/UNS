@@ -33,7 +33,7 @@ function mkClient(cfg) { const calls = [];
   const seen = {};
   for (const age of ['7-8', '9-10', '11-12']) { const w = await boot(age); w.go('home'); const d = w.document;
     assert.strictEqual(d.documentElement.getAttribute('data-age'), age); seen[age] = tiles(w);
-    assert.strictEqual(seen[age].length, 10); assert.strictEqual(new Set(seen[age]).size, 10, 'every section is on the home screen for every age'); assert.strictEqual(seen[age][1], 'health', 'health stays prominent');
+    assert.strictEqual(seen[age].length, 9); assert.strictEqual(new Set(seen[age]).size, 9, 'every section is on the home screen for every age'); assert.strictEqual(seen[age][1], 'health', 'health stays prominent');
     assert.strictEqual(/!/.test(d.querySelector('#app h1').textContent), age !== '11-12', 'greeting tone');
     w.go('feel'); seen[age + 'h'] = d.querySelector('#app h2').textContent; w.go('health'); ev(w, 'ST.step=2'); w.R(); seen[age + 'f'] = txt(w).match(/(Point|أشر)[^.]*\./)?.[0] || txt(w);
     w.go('health'); seen[age + 's'] = d.querySelector('#app .card.c3').textContent;
@@ -45,9 +45,10 @@ function mkClient(cfg) { const calls = [];
   pass('interface by age: size/density attribute, tile order, greeting tone and instruction wording differ; pain-scale and safety wording never do; nurse and landing screens are unaffected');
 
   // ---------- no restrictions
-  for (const age of ['7-8', '11-12']) { const w = await boot(age); w.go('skills'); const d = w.document;
-    assert.strictEqual(+txt(w).match(/(\d+)\s*(?:نشاط|activities)/)[1], 20, 'every activity is listed for ' + age);
-    const sug = [...d.querySelectorAll('#app .pill')].filter(x => x.textContent.includes('⭐')).length; assert(sug > 0 && (age === '7-8' || sug < 20), 'only a suggestion badge, not a lock (every activity suits 7-8; fewer suit 11-12)');
+  for (const age of ['7-8', '11-12']) { const w = await boot(age); w.eval('ST.cok=1'); w.go('care'); w.eval("ST.ct='skl'"); w.R(); const d = w.document;
+    const own = w.eval("sklPool().length"), expect = w.eval("ACT.filter(a=>a.ages.includes(ageNow())&&!SKL_EX.includes(a.id)).length"); assert.strictEqual(own, expect);
+    assert(d.querySelectorAll('.skl .skl-card').length >= 4, 'parents get suggestions for ' + age);
+    assert.strictEqual(w.eval("ACT.length"), 20, 'every activity still exists; the age only chooses what is suggested first');
     w.go('album'); assert.strictEqual(d.querySelectorAll('#app .grid > button').length, 14, 'all 14 coloring pictures for ' + age);
     w.go('mem'); w.setMem(6); assert.strictEqual(ev(w, 'G.c.length'), 24); w.setMem(1); assert.strictEqual(ev(w, 'G.c.length'), 6);
     w.go('match'); w.setMatch(4); assert.strictEqual(ev(w, 'G.mlv'), 4); w.setMatch(1); assert.strictEqual(ev(w, 'G.mlv'), 1);
@@ -93,9 +94,9 @@ function mkClient(cfg) { const calls = [];
   // ---------- creative content by age
   for (const [age, brush] of [['7-8', 12], ['9-10', 8], ['11-12', 5]]) { w = await boot(age); w.go('draw'); const cv = w.document.querySelector('#cv'), before = w.document.querySelector('#dp').textContent;
     assert.strictEqual(ev(w, 'ST.sz'), brush); assert.strictEqual(before, ev(w, `DRAW_PROMPTS['${age}'][0][ST.lang==='ar'?0:1]`)); w.newPrompt(); assert.notStrictEqual(w.document.querySelector('#dp').textContent, before); assert.strictEqual(w.document.querySelector('#cv'), cv, 'a new idea must not wipe the drawing'); }
-  for (const age of ['7-8', '9-10', '11-12']) { w = await boot(age); w.go('story'); const at = n => { ev(w, `ST.sn=${n}`); w.R(); return txt(w); };
-    assert(!/ending|نهاية/.test(at(0).replace(/ending/, 'x')) || true); const mid = at(0), end = at(3);
-    assert(!/other endings|نهايات أخرى/.test(mid), 'the ending message is not shown while choices remain'); assert(/other endings|نهايات أخرى/.test(end), 'it is shown at an ending'); assert(w.document.querySelector('#app button:not(.pri)'));
+  for (const age of ['7-8', '9-10', '11-12']) { w = await boot(age); w.go('story'); assert.strictEqual(w.document.querySelectorAll('.sty-cov').length, 9, 'all nine stories are open to every age');
+    ev(w, "styStart(STX.find(x=>x.ages.includes(ageNow())&&!Object.values(x.n).some(n=>n.m)).id)"); const mid = txt(w); assert(!/other endings|نهايات أخرى/.test(mid), 'the ending message is not shown while choices remain');
+    while (w.document.querySelector('.sty-ch')) w.document.querySelector('.sty-ch').click(); const end = txt(w); assert(/other endings|نهايات أخرى/.test(end), 'it is shown at an ending');
     assert.strictEqual(/💭/.test(end), age !== '7-8', age + ': reflection question only for older children'); }
   pass('drawing: brush size and ideas by age (a new idea keeps the canvas); story: ending message fixed, reflection question for 9-12');
 
